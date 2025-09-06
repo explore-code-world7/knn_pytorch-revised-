@@ -13,8 +13,8 @@ from gather_nn_cuda import gather_nn
 class KNearestNeighbor(Function):
     """ Compute k nearest neighbors for each query point.
     """
-    def __init__(self, k):
-        self.k = k
+    # def __init__(self, k):
+    #     self.k = k
     '''
     B: batch size
     D: dimension size
@@ -28,7 +28,8 @@ class KNearestNeighbor(Function):
         ind     B,N,K
         feat    B,D,K,N
     '''
-    def forward(self, ref, query=None):
+    @staticmethod
+    def forward(ctx, ref, query=None, k=16):
         # B,D,N -> B,N,D
         ref_t = torch.transpose(ref, 1, 2)
         ref = ref.float().cuda()
@@ -48,17 +49,18 @@ class KNearestNeighbor(Function):
         # B,N,1 - B,N,M + B,1,M
         dist = ref_t2 - 2 * m + query2
         # B,N,K
-        top_ind = torch.topk(dist, self.k, largest=False, dim=2)[1].long().cuda()
+        top_ind = torch.topk(dist, k, largest=False, dim=2)[1].long().cuda()
 
         # B,N,K,D
-        feat = torch.empty(ref.size(0), ref.size(2), self.k, ref.size(1)).float().cuda().contiguous()
+        feat = torch.empty(ref.size(0), ref.size(2), k, ref.size(1)).float().cuda().contiguous()
         gather_nn(ref_t.contiguous(), query_t.contiguous(), top_ind.contiguous(), feat)
         # B,N,K,D -> B,D,K,N
         feat = torch.transpose(feat, 1, 3)
 
         return feat, top_ind
 
-    def backward(self, grad, retain_graph):
+    @staticmethod
+    def backward(ctx, grad, retain_graph):
         output_grad = torch.mean(grad, dim=2, keepdim=False)
         return output_grad
 
@@ -92,6 +94,7 @@ def py_gather_nn(ref, query, ind):
     return feat
 
 class TestKNearestNeighbor(unittest.TestCase):
+    # apply 只接受位置参数，不接受key parameters;
     def test_forward1(self):
         B, D, N, M = 5, 4, 6500, 6500
         k = 16
@@ -99,7 +102,7 @@ class TestKNearestNeighbor(unittest.TestCase):
             ref = Variable(torch.randn(B, D, N, dtype=torch.float))
             query = Variable(torch.randn(B, D, M, dtype=torch.float))
             print('*', end='', flush=True)
-            feat, ind = KNearestNeighbor(k)(ref, query)
+            feat, ind = KNearestNeighbor.apply(ref, query, k)
             pyfeat = py_gather_nn(ref, query, ind)
             assert torch.equal(pyfeat, feat.cpu()), "python & cuda version not match"
 
@@ -108,7 +111,7 @@ class TestKNearestNeighbor(unittest.TestCase):
         ref = Variable(torch.tensor([[[0,10,100], [0,10,100]]], dtype=torch.float))
         # 1, 2, 6
         query = Variable(torch.tensor([[[1,2,11,12,101,102], [1,2,11,12,101,102]]], dtype=torch.float))
-        feat, ind = KNearestNeighbor(4)(ref, query)
+        feat, ind = KNearestNeighbor.apply(ref, query, 4)
         print('\n{}'.format(ind.cpu().numpy()))
         print('\n{}'.format(feat.cpu().numpy()))
         pyfeat = py_gather_nn(ref, query, ind)
@@ -121,7 +124,8 @@ class TestKNearestNeighbor(unittest.TestCase):
         for _ in range(10):
             ref = Variable(torch.randn(B, D, N, dtype=torch.float))
             print('*', end='', flush=True)
-            feat, ind = KNearestNeighbor(k)(ref)
+            # import pdb;     pdb.set_trace()
+            feat, ind = KNearestNeighbor.apply(ref, None, k)
             pyfeat = py_gather_nn(ref, ref, ind)
             assert torch.equal(pyfeat, feat.cpu()), "python & cuda version not match"
 
