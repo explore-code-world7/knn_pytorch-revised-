@@ -1,0 +1,6 @@
+# ninja log v5
+0	854	1757120036162860349	/home/sky/Project/Py_cpp_lib/knn_pytorch/build/temp.linux-x86_64-cpython-38/gather_nn_kernel.o	c42763dfd3d5781d
+1	18011	1757120575748320183	/home/sky/Project/Py_cpp_lib/knn_pytorch/build/temp.linux-x86_64-cpython-38/gather_nn.o	ebcd65f631591abd
+16	17412	1757120719293740349	/home/sky/Project/Py_cpp_lib/knn_pytorch/build/temp.linux-x86_64-cpython-38/gather_nn.o	ebcd65f631591abd
+15	17736	1757120837674675749	/home/sky/Project/Py_cpp_lib/knn_pytorch/build/temp.linux-x86_64-cpython-38/gather_nn.o	ebcd65f631591abd
+15	18034	1757121231074912260	/home/sky/Project/Py_cpp_lib/knn_pytorch/build/temp.linux-x86_64-cpython-38/gather_nn.o	ebcd65f631591abd

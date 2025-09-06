@@ -28,14 +28,14 @@ int gather_nn(
   CHECK_INPUT(ind_tensor);
   CHECK_INPUT(out_feat_tensor);
 
-  AT_ASSERTM(ind_tensor.size(0) == query_tensor.size(0), "batch size not match 1")
-  AT_ASSERTM(query_tensor.size(0) == out_feat_tensor.size(0), "batch size not match 2")
-  AT_ASSERTM(query_tensor.size(0) == ref_tensor.size(0), "batch size not match 3")
-  AT_ASSERTM(ind_tensor.size(1) == ref_tensor.size(1), "N not match 1")
-  AT_ASSERTM(ind_tensor.size(1) == out_feat_tensor.size(1), "N not match 2")
-  AT_ASSERTM(ind_tensor.size(2) == out_feat_tensor.size(2), "k not match")
-  AT_ASSERTM(query_tensor.size(2) == ref_tensor.size(2), "dim size not match 1")
-  AT_ASSERTM(query_tensor.size(2) == out_feat_tensor.size(3), "dim size not match 2")
+  AT_ASSERTM(ind_tensor.size(0) == query_tensor.size(0), "batch size not match 1");
+  AT_ASSERTM(query_tensor.size(0) == out_feat_tensor.size(0), "batch size not match 2");
+  AT_ASSERTM(query_tensor.size(0) == ref_tensor.size(0), "batch size not match 3");
+  AT_ASSERTM(ind_tensor.size(1) == ref_tensor.size(1), "N not match 1");
+  AT_ASSERTM(ind_tensor.size(1) == out_feat_tensor.size(1), "N not match 2");
+  AT_ASSERTM(ind_tensor.size(2) == out_feat_tensor.size(2), "k not match");
+  AT_ASSERTM(query_tensor.size(2) == ref_tensor.size(2), "dim size not match 1");
+  AT_ASSERTM(query_tensor.size(2) == out_feat_tensor.size(3), "dim size not match 2");
 
   int64_t batch = query_tensor.size(0);
   int64_t M = query_tensor.size(1);
@@ -50,10 +50,10 @@ int gather_nn(
   std::cout << "k:" << k << std::endl;
   std::cout << "N:" << N << std::endl;
 #endif
-  float *ref_dev = ref_tensor.data<float>();
-  float *query_dev = query_tensor.data<float>();
-  long *ind_dev = ind_tensor.data<long>();
-  float *out_feat_dev = out_feat_tensor.data<float>();
+  float *ref_dev = ref_tensor.data_ptr<float>();
+  float *query_dev = query_tensor.data_ptr<float>();
+  long *ind_dev = ind_tensor.data_ptr<long>();
+  float *out_feat_dev = out_feat_tensor.data_ptr<float>();
 
   gather_nn_dev(
     ref_dev, query_dev, ind_dev,
